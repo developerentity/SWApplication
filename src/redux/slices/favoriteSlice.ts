@@ -35,7 +35,7 @@ const slice = createSlice({
         ];
       }
     },
-    resetFavotites(state, action) {
+    resetFavotites(state) {
       state.favorites = [];
     },
   },

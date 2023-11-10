@@ -16,12 +16,14 @@ export default CounterCard;
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        padding: 2,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        backgroundColor: '#fff',
+        borderRadius: 5,
     },
     count: {
-        fontSize: 40,
+        fontSize: 32,
     },
     title: {
-
     }
 })
