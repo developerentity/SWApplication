@@ -35,7 +35,7 @@ const slice = createSlice({
         ];
       }
     },
-    resetFavotites(state) {
+    resetFavorites(state) {
       state.favorites = [];
     },
   },
@@ -43,5 +43,5 @@ const slice = createSlice({
 
 export default slice.reducer;
 
-export const {addToFavorites, removeFromFavorites, resetFavotites} =
+export const {addToFavorites, removeFromFavorites, resetFavorites} =
   slice.actions;

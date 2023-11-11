@@ -16,3 +16,10 @@ export interface ICharacter {
   url: string;
   vehicles: Array<string>;
 }
+
+export interface ICharacterResponse {
+  count: number;
+  next: string;
+  previous: string;
+  results: Array<ICharacter>;
+}

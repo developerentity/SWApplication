@@ -1,23 +1,32 @@
-import { StyleSheet, View, Text, ActivityIndicator } from "react-native"
-import FansChart from "../elements/FansChart";
+import { StyleSheet, View, Text, ActivityIndicator, ScrollView } from "react-native"
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { useEffect } from "react";
 import { getCharacterOnPage } from "../redux/slices/characterSlice";
 import CounterCard from "../elements/CounterCard";
 import CustomButton from "../elements/CustomButton";
-import { resetFavotites } from "../redux/slices/favoriteSlice";
+import { resetFavorites } from "../redux/slices/favoriteSlice";
+import TableHeader from "../elements/TableHeader";
+import TableRow from "../elements/TableRow";
+import { ICharacter } from "../interfaces/character";
 
 const Home = () => {
 
     const dispatch = useAppDispatch()
     const { appLoading } = useAppSelector((state) => state.loadingSlice);
+    const { characters } = useAppSelector((state) => state.characterSlice);
+    const { favorites } = useAppSelector((state) => state.favoriteSlice);
+
+    const countUsersByGender = (users: Array<ICharacter>, targetGender: string) =>
+        users.filter(user => user.gender === 'male' || user.gender === 'female' ? user.gender === targetGender : targetGender === 'other').length;
 
     useEffect(() => {
-        dispatch(getCharacterOnPage());
+        if (!characters.length) {
+            dispatch(getCharacterOnPage());
+        }
     }, [dispatch]);
 
-    const onFavouritesClear = () => {
-        dispatch(resetFavotites())
+    const onFavoritesClear = () => {
+        dispatch(resetFavorites())
     }
 
     if (appLoading) {
@@ -30,18 +39,23 @@ const Home = () => {
 
     return (
         <View style={styles.root}>
-            <View style={styles.headerRow}>
-                <Text style={styles.title}>Fans</Text>
-                <CustomButton title="Clear" onPress={onFavouritesClear} />
-            </View>
-            <View style={styles.countersRow}>
-                <CounterCard count={3} title="Female fans" />
-                <CounterCard count={2} title="Make fans" />
-                <CounterCard count={7} title="Others" />
-            </View>
-            <View style={styles.chartContainer}>
-                <FansChart />
-            </View>
+            <ScrollView>
+                <View style={styles.headerRow}>
+                    <Text style={styles.title}>Fans</Text>
+                    <CustomButton title="Clear" onPress={onFavoritesClear} />
+                </View>
+                <View style={styles.countersRow}>
+                    <CounterCard count={countUsersByGender(favorites, 'female')} title="Female fans" />
+                    <CounterCard count={countUsersByGender(favorites, 'male')} title="Make fans" />
+                    <CounterCard count={countUsersByGender(favorites, 'other')} title="Others" />
+                </View>
+
+                <View style={styles.tableContainer}>
+                    <TableHeader />
+                    {characters?.map((item) => <TableRow key={item.created} item={item} />)}
+                </View>
+
+            </ScrollView>
         </View>
     )
 }
@@ -75,4 +89,10 @@ const styles = StyleSheet.create({
     chartContainer: {
         marginTop: 8,
     },
+    tableContainer: {
+        marginTop: 10,
+        borderRadius: 8,
+        padding: 8,
+        backgroundColor: '#fff',
+    }
 })

@@ -2,16 +2,15 @@ import { Text, View } from "react-native"
 
 
 
-const Cahracter = () => {
-
+const Character = () => {
 
     return (
         <View>
             <Text>
-                Cahracter
+                Character
             </Text>
         </View>
     )
 }
 
-export default Cahracter;
+export default Character;
