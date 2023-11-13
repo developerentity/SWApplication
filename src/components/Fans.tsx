@@ -6,6 +6,7 @@ import TableHeader from "../elements/TableHeader";
 import TableRow from "../elements/TableRow";
 import CounterRow from "../elements/CounterRow";
 import { ICharacter } from "../interfaces/character";
+import SearchInput from "../elements/SearchInput";
 
 const Fans = () => {
 
@@ -14,22 +15,18 @@ const Fans = () => {
     const { characters, isLastPage } = useAppSelector((state) => state.characterSlice);
     const { favorites } = useAppSelector((state) => state.favoriteSlice);
     const [page, setPage] = useState(1)
-    const [sortedData, setSortedData] = useState<Array<ICharacter>>([]);
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | ''>('asc');
+    const [processedData, setProcessedData] = useState<Array<ICharacter>>([]);
 
     useEffect(() => {
-        dispatch(getCharacterOnPage(page));
-    }, [dispatch, page]);
-
-    useEffect(() => {
-        setSortedData(characters)
-    }, [characters])
-
-    const getNewPage = () => {
         if (!appLoading && !isLastPage) {
-            setPage(page + 1)
+            dispatch(getCharacterOnPage(page));
+            setSortOrder('none');
         }
-    }
+    }, [page])
+
+    useEffect(() => {
+        setProcessedData(characters)
+    }, [characters])
 
     const handleScroll = (
         event: NativeSyntheticEvent<NativeScrollEvent>,
@@ -38,32 +35,65 @@ const Fans = () => {
         const contentHeight = event.nativeEvent.contentSize.height;
         const scrollViewHeight = event.nativeEvent.layoutMeasurement.height;
 
-        const paddingToBottom = 40;
+        const paddingToBottom = 60;
 
         if (scrollViewHeight + offsetY >= contentHeight - paddingToBottom) {
-            getNewPage()
+            if (!appLoading && !isLastPage) {
+                setPage(page + 1)
+            }
         }
     }
 
-    const onSortData = () => {
-        const processedData = [...sortedData].sort((a, b) => {
-            if (sortOrder === 'asc') {
-                return a.name.localeCompare(b.name);
-            } else if (sortOrder === 'desc') {
-                return b.name.localeCompare(a.name);
-            }
-            return 0;
-        });
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'none'>('none');
 
-        sortOrder === ''
-            ? setSortedData(characters)
-            : setSortedData(processedData)
+    const handleSort = () => {
+        switch (sortOrder) {
+            case 'asc':
+                setSortOrder('desc');
+                break;
+            case 'desc':
+                setSortOrder('none');
+                break;
+            default:
+                setSortOrder('asc');
+                break;
+        }
+    };
 
-        setSortOrder((prevOrder) => {
-            if (prevOrder === 'asc') return 'desc';
-            if (prevOrder === 'desc') return '';
-            return 'asc';
-        });
+    const changeOrder = () => {
+        let sortedData: Array<ICharacter> = [];
+
+        switch (sortOrder) {
+            case 'asc':
+                sortedData = [...processedData].sort((a, b) =>
+                    b.name.localeCompare(a.name)
+                );
+                break;
+            case 'desc':
+                sortedData = [...processedData].sort((a, b) =>
+                    a.name.localeCompare(b.name)
+                );
+                break;
+            default:
+                sortedData = processedData;
+                break;
+        }
+
+        setProcessedData(sortedData);
+    };
+
+    useEffect(() => {
+        changeOrder()
+    }, [sortOrder])
+
+    const [searchString, setSearchString] = useState('')
+
+    const handleSearch = (text: string) => {
+        setSearchString(text)
+        const filtered = characters.filter(item =>
+            item.name.toLowerCase().includes(text.toLowerCase())
+        );
+        setProcessedData(filtered);
     };
 
     return (
@@ -72,9 +102,13 @@ const Fans = () => {
 
                 <CounterRow favorites={favorites} />
 
-                <View style={styles.tableContainer}>
-                    <TableHeader sortOrder={sortOrder} onSortData={onSortData} />
-                    {sortedData?.map((item) => <TableRow key={item.created} item={item} />)}
+                <View style={styles.container}>
+                    <SearchInput value={searchString} onChange={handleSearch} />
+                </View>
+
+                <View style={styles.container}>
+                    <TableHeader sortOrder={sortOrder} onSortData={handleSort} />
+                    {processedData.map((item) => <TableRow key={item.name} item={item} />)}
                 </View>
 
             </ScrollView>
@@ -93,7 +127,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-
     },
     title: {
         fontSize: 24,
@@ -103,11 +136,8 @@ const styles = StyleSheet.create({
         gap: 16,
         marginTop: 8,
     },
-    chartContainer: {
+    container: {
         marginTop: 8,
-    },
-    tableContainer: {
-        marginVertical: 10,
         borderRadius: 8,
         padding: 8,
         backgroundColor: '#fff',
