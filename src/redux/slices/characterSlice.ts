@@ -12,12 +12,12 @@ import {setRequestError} from './errorSlice';
 
 interface ICharactersInitialState {
   characters: Array<ICharacter>;
-  count: number;
+  isLastPage: boolean;
 }
 
 const initialState: ICharactersInitialState = {
   characters: [],
-  count: 0,
+  isLastPage: false,
 };
 
 const slice = createSlice({
@@ -25,17 +25,17 @@ const slice = createSlice({
   initialState,
   reducers: {
     setCharacters(state, action: PayloadAction<Array<ICharacter>>) {
-      state.characters = [...action.payload];
+      state.characters = [...state.characters.concat(action.payload)];
     },
-    setCount(state, action: PayloadAction<number>) {
-      state.count = action.payload;
+    setIsLastPage(state, action: PayloadAction<boolean>) {
+      state.isLastPage = action.payload;
     },
   },
 });
 
 export default slice.reducer;
 
-const {setCharacters, setCount} = slice.actions;
+const {setCharacters, setIsLastPage} = slice.actions;
 
 type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
@@ -51,7 +51,9 @@ export const getCharacterOnPage = (page = 1): AppThunk<void> => {
       const data = await fetchCharacters({page: page});
       if (!!data) {
         dispatch(setCharacters(data.results));
-        dispatch(setCount(data.count));
+        if (data.next === null) {
+          dispatch(setIsLastPage(true));
+        }
       }
       dispatch(setLoading(false));
     } catch (err) {

@@ -19,19 +19,18 @@ const TableRow = ({ item }: { item: ICharacter }) => {
     }
 
     const onOpenInfoHandler = (item: ICharacter) => {
-        navigation.navigate('Character', item)
+        const route = ["Character", { item: item }]
+        navigation.navigate(...(route as never))
     }
 
     return (
         <View style={styles.rowContainer}>
-            <View style={styles.iconContainer}>
-                <Pressable onPress={() => onFavoriteHandler(item)}>
-                    <Ionicons
-                        name={isFavorite ? "heart" : "heart-outline"}
-                        size={20}
-                        color={'#F65449'} />
-                </Pressable>
-            </View>
+            <Pressable onPress={() => onFavoriteHandler(item)}>
+                <Ionicons
+                    name={isFavorite ? "heart" : "heart-outline"}
+                    size={24}
+                    color={'#F65449'} />
+            </Pressable>
             <Text style={styles.rowText}>{item.name}</Text>
             <Pressable onPress={() => onOpenInfoHandler(item)}>
                 <Text>More info...</Text>
@@ -45,17 +44,14 @@ export default TableRow;
 const styles = StyleSheet.create({
     rowContainer: {
         flexDirection: 'row',
-        borderBottomWidth: 1,
+        borderTopWidth: 1,
         borderColor: '#E0E0E0',
-        paddingVertical: 10,
-    },
-    iconContainer: {
+        paddingVertical: 20,
         paddingHorizontal: 8,
-        width: 42,
-        verticalAlign: 'middle'
     },
     rowText: {
         flex: 1,
-        fontSize: 16,
+        marginLeft: 16,
+        fontSize: 20,
     },
 });
