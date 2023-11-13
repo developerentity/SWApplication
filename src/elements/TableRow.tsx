@@ -4,11 +4,12 @@ import { addToFavorites, removeFromFavorites } from "../redux/slices/favoriteSli
 import { ICharacter } from "../interfaces/character";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
+import { ScreenNavigationProp } from "../interfaces/navigation";
 
 
 const TableRow = ({ item }: { item: ICharacter }) => {
     const dispatch = useAppDispatch()
-    const navigation = useNavigation();
+    const navigation = useNavigation<ScreenNavigationProp>();
     const { favorites } = useAppSelector((state) => state.favoriteSlice);
     const isFavorite = favorites.some((favItem: ICharacter) => favItem.name === item.name)
 
@@ -19,8 +20,7 @@ const TableRow = ({ item }: { item: ICharacter }) => {
     }
 
     const onOpenInfoHandler = (item: ICharacter) => {
-        const route = ["Character", { item: item }]
-        navigation.navigate(...(route as never))
+        navigation.navigate('Character', { selectedCharacter: item });
     }
 
     return (
@@ -33,7 +33,10 @@ const TableRow = ({ item }: { item: ICharacter }) => {
             </Pressable>
             <Text style={styles.rowText}>{item.name}</Text>
             <Pressable onPress={() => onOpenInfoHandler(item)}>
-                <Text>More info...</Text>
+                <Ionicons
+                    name={"ellipsis-horizontal-sharp"}
+                    size={24}
+                    color={'#027AFF'} />
             </Pressable>
         </View>
     );

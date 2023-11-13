@@ -6,10 +6,12 @@ import { Button } from "react-native";
 import Character from "../components/Character";
 import { useAppDispatch } from "../redux/hooks";
 import { resetFavorites } from "../redux/slices/favoriteSlice";
+import { ICharacter } from "../interfaces/character";
+import { TRootStackParamList } from "../interfaces/navigation";
 
 const Index = () => {
 
-    const Stack = createNativeStackNavigator();
+    const Stack = createNativeStackNavigator<TRootStackParamList>();
 
     const dispatch = useAppDispatch()
 
