@@ -1,0 +1,1 @@
+import {ICharacter} from './interfaces/character';

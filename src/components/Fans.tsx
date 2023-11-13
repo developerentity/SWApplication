@@ -5,6 +5,7 @@ import { getCharacterOnPage } from "../redux/slices/characterSlice";
 import TableHeader from "../elements/TableHeader";
 import TableRow from "../elements/TableRow";
 import CounterRow from "../elements/CounterRow";
+import { ICharacter } from "../interfaces/character";
 
 const Fans = () => {
 
@@ -13,6 +14,16 @@ const Fans = () => {
     const { characters, isLastPage } = useAppSelector((state) => state.characterSlice);
     const { favorites } = useAppSelector((state) => state.favoriteSlice);
     const [page, setPage] = useState(1)
+    const [sortedData, setSortedData] = useState<Array<ICharacter>>([]);
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | ''>('asc');
+
+    useEffect(() => {
+        dispatch(getCharacterOnPage(page));
+    }, [dispatch, page]);
+
+    useEffect(() => {
+        setSortedData(characters)
+    }, [characters])
 
     const getNewPage = () => {
         if (!appLoading && !isLastPage) {
@@ -34,9 +45,26 @@ const Fans = () => {
         }
     }
 
-    useEffect(() => {
-        dispatch(getCharacterOnPage(page));
-    }, [dispatch, page]);
+    const onSortData = () => {
+        const processedData = [...sortedData].sort((a, b) => {
+            if (sortOrder === 'asc') {
+                return a.name.localeCompare(b.name);
+            } else if (sortOrder === 'desc') {
+                return b.name.localeCompare(a.name);
+            }
+            return 0;
+        });
+
+        sortOrder === ''
+            ? setSortedData(characters)
+            : setSortedData(processedData)
+
+        setSortOrder((prevOrder) => {
+            if (prevOrder === 'asc') return 'desc';
+            if (prevOrder === 'desc') return '';
+            return 'asc';
+        });
+    };
 
     return (
         <View style={styles.root}>
@@ -45,8 +73,8 @@ const Fans = () => {
                 <CounterRow favorites={favorites} />
 
                 <View style={styles.tableContainer}>
-                    <TableHeader />
-                    {characters?.map((item) => <TableRow key={item.created} item={item} />)}
+                    <TableHeader sortOrder={sortOrder} onSortData={onSortData} />
+                    {sortedData?.map((item) => <TableRow key={item.created} item={item} />)}
                 </View>
 
             </ScrollView>

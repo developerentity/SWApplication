@@ -7,11 +7,11 @@ import Character from "../components/Character";
 import { useAppDispatch } from "../redux/hooks";
 import { resetFavorites } from "../redux/slices/favoriteSlice";
 import { ICharacter } from "../interfaces/character";
-import { TRootStackParamList } from "../interfaces/navigation";
+import { RootStackParamList } from "../interfaces/navigation";
 
 const Index = () => {
 
-    const Stack = createNativeStackNavigator<TRootStackParamList>();
+    const Stack = createNativeStackNavigator<RootStackParamList>();
 
     const dispatch = useAppDispatch()
 
@@ -34,7 +34,12 @@ const Index = () => {
                             />)
                     }}
                 />
-                <Stack.Screen name="Character" component={Character} />
+                <Stack.Screen
+                    name="Character"
+                    component={Character} 
+                    options={{
+                        headerTitle: (props) => <HeaderTitle title='Character' {...props} />,
+                    }}/>
             </Stack.Navigator>
         </NavigationContainer>
     )
